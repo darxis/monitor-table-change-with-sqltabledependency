@@ -54,10 +54,13 @@ namespace TableDependency.SqlClient.Test
         {
             try
             {
+                string naming;
+
                 using (var tableDependency = new SqlTableDependency<Issue253Model>(ConnectionStringForTestUser, tableName: TableName))
                 {
                     tableDependency.OnChanged += (o, args) => { };
                     tableDependency.Start();
+                    naming = tableDependency.DataBaseObjectsNamingConvention;
 
                     Thread.Sleep(5000);
 
@@ -76,6 +79,9 @@ namespace TableDependency.SqlClient.Test
                         TaskScheduler.UnobservedTaskException -= TaskSchedulerOnUnobservedTaskException;
                     }
                 }
+
+                Assert.IsTrue(base.AreAllDbObjectDisposed(naming));
+                Assert.IsTrue(base.CountConversationEndpoints(naming) == 0);
             }
             catch (Exception exception)
             {
